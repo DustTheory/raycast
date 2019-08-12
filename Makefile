@@ -40,6 +40,12 @@ out/$(EXEC_TEST): $(OBJ_TEST)
 
 # -----------------------------------------------------------------------
 
+.PHONY: tools
+tools: 
+	$(CXX) $(CXXFILES) tools/map-compiler.cpp $(INC) -o out/tools/map-compiler $(SFML_LIBS) && echo "[OK] $@"
+
+# -----------------------------------------------------------------------
+
 tmp/%.o: src/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< $(INC) -o $@ && echo "[OK] $@"
 
@@ -50,6 +56,8 @@ tmp/%.o: tst/%.cpp
 
 .PHONY: clean clear
 clean clear: 
-	@rm -f out/* && echo "[CL] out/"
-	@rm -f tmp/* && echo "[CL] tmp/"
+	@rm -rf out/* && echo "[CL] out/"
+	@rm -rf tmp/* && echo "[CL] tmp/"
+	@mkdir out/tools && echo "[MKDIR] out/tools"
+	
 

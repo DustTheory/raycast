@@ -1,12 +1,13 @@
 #include <vector>
 #include <fstream>
-#include <iostream>
 #include <string>
+#include <algorithm>
 
 #include <SFML/Graphics.hpp>
 #include "json.hpp"
 
 #include "Map.hpp"
+
 
 using json = nlohmann::json;
 
@@ -42,13 +43,12 @@ void Map :: load_map_file(std::string map_filepath){
 		std::string tmp( (std::istreambuf_iterator<char>(input_stream) ),
 						 (std::istreambuf_iterator<char>()             ) );	
 		json map_json = json::parse(tmp);
-		
-//		h = map_json["height"];
-//		w = map_json["weight"];
+		h = map_json["height"];
+		w = map_json["width"];
 
-//		map = map_json["map"].get<std::vector<uint8_t>>();
+		map.assign(map_json["map"].begin(), map_json["map"].end());
 	
-	//	spawnpoint = {map_json["spawnpoint_x"], map_json["spawnpoint_y"]};
+		spawnpoint = {map_json["spawnpoint_x"], map_json["spawnpoint_y"]};
 
 	}
 
