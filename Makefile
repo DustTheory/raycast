@@ -26,19 +26,17 @@ SFML_LIBS = -lsfml-graphics -lsfml-window -lsfml-system
 .PHONY: all
 
 all: out/$(EXEC)
-	$(CXX) $(CXXFLAGS) $(INC) -o $@ $(OBJ) $(SFML_LIBS)
 
 out/$(EXEC): $(OBJ)
-	$(LD) $(LD_FLAGS) $^ -o $@ $(SFML_LIBS) && echo "[OK] $@"
+	$(CXX) $(CXXFLAGS) $(INC) -o $@ $(OBJ) $(SFML_LIBS)
 
 # -----------------------------------------------------------------------
 
 .PHONY: test
 test: out/$(EXEC_TEST)
-	$(CXX) $(CXXFLAGS) $(INC_TEST) -o $@ $(OBJ_TEST) $(SFML_LIBS)	
 
 out/$(EXEC_TEST): $(OBJ_TEST)
-	$(LD) $(LDFLAGS_TEST) $^ -o $@ $(SFML_LIBS) && echo "[OK] $@"
+	$(CXX) $(CXXFLAGS) $(INC_TEST) -o $@ $(OBJ_TEST) $(SFML_LIBS)	
 
 # -----------------------------------------------------------------------
 
