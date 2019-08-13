@@ -8,6 +8,8 @@
 
 #include "Map.hpp"
 
+#include <iostream>
+#include <iomanip>
 
 using json = nlohmann::json;
 
@@ -22,19 +24,25 @@ Block :: Block(sf::Color _color, bool _visible , bool _colliding ){
 	colliding = _colliding;
 }
 
+
 // Define base blocks
-Block ground = Block(sf::Color::Transparent, false, false);
-Block wall_blue = Block(sf::Color::Blue);
 
+#define N_BASE_BLOCK_TYPES 2
 
-std::vector<Block> block_types{
-	ground,
-	wall_blue
+Block Map::BLOCK_GROUND = Block(sf::Color::Transparent, false, false);
+Block Map::BLOCK_WALL_BLUE = Block(sf::Color::Blue);
+
+std::vector<Block*> Map::base_block_types = std::vector<Block*>{
+	&BLOCK_GROUND,
+	&BLOCK_WALL_BLUE
 };
 
-Map :: Map() : h(0), w(0), spawnpoint({0, 0}) {};
+Map :: Map() : h(0), w(0), spawnpoint({0, 0}) {
+	block_types.assign(base_block_types.begin(), base_block_types.end());
+}
 
-Map ::Map(std::string map_filepath){
+Map :: Map(std::string map_filepath){
+	block_types.assign(base_block_types.begin(), base_block_types.end());
 	load_map_file(map_filepath);
 }
 	
@@ -60,8 +68,12 @@ int Map :: get_width(){
 	return w;
 }
 
+
+Block* Map :: at_coord(int x, int y){
+	return block_types[map[y*w+x - ((x == y) ? 0 : 1)]];
+}
+
 sf::Vector2<int> Map :: get_spawnpoint(){
 	return spawnpoint;	
 }
-
 

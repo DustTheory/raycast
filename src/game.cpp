@@ -1,6 +1,6 @@
 #include "Map.hpp"
 
 int main(){
-	Map map;
+//	Map map;
 	return 0;
 }
