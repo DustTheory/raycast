@@ -73,6 +73,10 @@ Block* Map :: at_coord(int x, int y){
 	return block_types[map[y*w+x - ((x == y) ? 0 : 1)]];
 }
 
+Block* Map :: at_pos(int p){
+	return block_types[map[p]];
+}
+
 sf::Vector2<int> Map :: get_spawnpoint(){
 	return spawnpoint;	
 }

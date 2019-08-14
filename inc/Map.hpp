@@ -24,7 +24,7 @@
 		int get_width();
 		sf::Vector2<int> get_spawnpoint();
 		Block* at_coord(int x, int y);
-	
+		Block* at_pos(int p);	
 		static Block BLOCK_GROUND;
 		static Block BLOCK_WALL_BLUE;
 		static std::vector<Block*> base_block_types;
