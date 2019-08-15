@@ -1,4 +1,5 @@
 #include "Minimap.hpp"
+#include "World.hpp"
 
 void Minimap :: setup_window(){
 	window = new sf::RenderWindow(sf::VideoMode(MINIMAP_W_WIDTH, MINIMAP_W_HEIGHT), "Minimap");
@@ -11,7 +12,7 @@ void Minimap :: setup_window(){
 		target_size.y / map_sprite.getLocalBounds().height);
 }
 
-Minimap :: Minimap(Map* _map = new Map()) : map(_map){
+Minimap :: Minimap(Map* _map = new Map(), World* _game_world = new World()) : map(_map), game_world(_game_world){
 	m_w = map->get_width();
 	m_h = map->get_height();
 	setup_window();
@@ -23,7 +24,14 @@ void Minimap :: update_minimap(){
 }
 
 void Minimap :: update_map_overlay(){
-	
+	for(GameObject* o : game_world->game_objects){
+		if(!o->visible_on_minimap)
+				continue;
+		sf::CircleShape marker(10);	//size
+		marker.setPosition(map_coords_to_minimap_window_coords(o->pos));
+		marker.setFillColor(sf::Color::Red);
+		window->draw(marker);
+	}	
 }
 
 void Minimap :: update_map(){
@@ -39,5 +47,12 @@ void Minimap :: update_map(){
 	map_texture.update(map_pixels);
 	
 	window->draw(map_sprite);
+}
+
+sf::Vector2f Minimap :: map_coords_to_minimap_window_coords(sf::Vector2f map_coords){
+	return {
+		map_coords.x * window->getSize().x / m_w,
+		map_coords.y * window->getSize().y / m_h
+	};
 }
 

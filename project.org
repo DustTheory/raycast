@@ -1,5 +1,3 @@
-* TODO Make MakeFile
+* TODO fix mistake: Minimap controls gameworld instead of gameworld controlling gamemap
+* TODO implement collision
 
-BUGS:
-
-* TODO Json Parsing error in Map.hpp
