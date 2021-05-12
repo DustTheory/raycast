@@ -1,83 +1,39 @@
-#include <vector>
-#include <fstream>
-#include <string>
-#include <algorithm>
+#include <stdexcept>
+#include "Map.h"
 
-#include <SFML/Graphics.hpp>
-#include "json.hpp"
+Map::Map(): mapHeight(0), mapWidth(0){};
 
-#include "Map.hpp"
-
-#include <iostream>
-#include <iomanip>
-
-using json = nlohmann::json;
-
-Block :: Block(){
-	color = sf::Color::Magenta;
-	visible = colliding = true;
-}
-
-Block :: Block(sf::Color _color, bool _visible , bool _colliding ){
-	color = _color;
-	visible = _visible;
-	colliding = _colliding;
+Map::Map(std::string mapdata, int mapHeight, int mapWidth): mapHeight(mapHeight), mapWidth(mapWidth) {
+	if((int)mapdata.length() != mapHeight*mapWidth)
+		throw std::out_of_range("Map dimensions incompatible with map data");
+	this->map = std::vector<std::vector<MapCell>>(mapHeight, std::vector<MapCell>(mapWidth, MapCell::EmptyCell));
+	for(int i = 0; i < mapHeight; i++)
+		for(int j = 0; j < mapWidth; j++)
+			this->map.at(i).at(j) = (MapCell)(mapdata[i*mapWidth+j]-'0');
 }
 
 
-// Define base blocks
-
-#define N_BASE_BLOCK_TYPES 2
-
-Block Map::BLOCK_GROUND = Block(sf::Color::Transparent, false, false);
-Block Map::BLOCK_WALL_BLUE = Block(sf::Color::Blue);
-
-std::vector<Block*> Map::base_block_types = std::vector<Block*>{
-	&BLOCK_GROUND,
-	&BLOCK_WALL_BLUE
-};
-
-Map :: Map() : h(0), w(0), spawnpoint({0, 0}) {
-	block_types.assign(base_block_types.begin(), base_block_types.end());
+bool Map::isOutOfBounds(int i, int j) const{
+     return i < 0 || j < 0 || i >= mapHeight || j >= mapWidth;
 }
 
-Map :: Map(std::string map_filepath){
-	block_types.assign(base_block_types.begin(), base_block_types.end());
-	load_map_file(map_filepath);
-}
-	
-void Map :: load_map_file(std::string map_filepath){
-		std::ifstream input_stream(map_filepath);
-		std::string tmp( (std::istreambuf_iterator<char>(input_stream) ),
-						 (std::istreambuf_iterator<char>()             ) );	
-		json map_json = json::parse(tmp);
-		h = map_json["height"];
-		w = map_json["width"];
-
-		map.assign(map_json["map"].begin(), map_json["map"].end());
-	
-		spawnpoint = {map_json["spawnpoint_x"], map_json["spawnpoint_y"]};
-
-	}
-
-int Map :: get_height(){
-	return h;
+MapCell Map::atCoords(int i, int j) const{
+	return map.at(i).at(j);
 }
 
-int Map :: get_width(){
-	return w;
+std::string Map::toString() const{
+	std::string res;
+	res.reserve(mapWidth*mapHeight+10);
+	for(int i = 0; i < mapHeight; i++)
+		for(int j = 0; j < mapWidth; j++)
+			res+= '0' + map[i][j];
+	return res;
 }
 
-
-Block* Map :: at_coord(int x, int y){
-	return block_types[map[y*w+x - ((x == y) ? 0 : 1)]];
+int Map::getMapWidth(){
+	return mapWidth;
 }
 
-Block* Map :: at_pos(int p){
-	return block_types[map[p]];
+int Map::getMapHeight(){
+	return mapHeight;
 }
-
-sf::Vector2<int> Map :: get_spawnpoint(){
-	return spawnpoint;	
-}
-

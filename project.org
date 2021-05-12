@@ -1,3 +1,0 @@
-* TODO fix mistake: Minimap controls gameworld instead of gameworld controlling gamemap
-* TODO implement collision
-
