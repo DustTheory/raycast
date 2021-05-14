@@ -18,13 +18,13 @@ int main(){
 
     sf::VertexArray lines;
     World world("worlds/testWorld.world");
-    Camera camera(&world, 500, 0, degToRad(90));
+    Camera camera(&world, 1000, 0, degToRad(60));
     world.addEntity(&camera);
     camera.setPosition({3, 3});
     Minimap minimap(&world, 300, 300);
     float moveSpeed = 0.3;
     float rotateSpeed = degToRad(2);
-    CameraView cameraView(&camera);
+    CameraView cameraView(&camera, 1000, 1000);
     while (window->isOpen()){
         sf::Event event;
         while (window->pollEvent(event))
@@ -52,7 +52,6 @@ int main(){
         camera.captureFrame();
         window->draw(cameraView.getFrame());
         sf::Sprite mm = minimap.getFrame();
-        mm.setPosition(500, 500);
         window-> draw(mm);
         window->display();
     }

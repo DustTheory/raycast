@@ -6,11 +6,12 @@
 
 enum MapCell {
     EmptyCell = 0,
-    Wall1,
-    Wall2,
-    Wall3,
-    Wall4,
-    Wall5
+    RedBrick,
+    Wood,
+    Eagle,
+    Mossy,
+    GreyStone,
+    PurpleStone
 };
 
 class Map {

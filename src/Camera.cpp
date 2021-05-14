@@ -20,7 +20,7 @@ void Camera::calcRays(){
     float l = FOVHeightCorrectionConstant = 2*tan(FOV/2);
     float step = l/nLines;
     float segmetnOffset = -tan(FOV/2);
-    for(int i = 0; i < rays.size(); i++){
+    for(int i = 0; i < (int)rays.size(); i++){
         sf::Vector2f direction = lookDir + segmetnOffset*viewPlaneV;
         rays[i] = Ray(getPosition(), direction, atan(segmetnOffset));
         segmetnOffset += step;
@@ -85,39 +85,41 @@ CameraView::CameraView(const Camera* camera, int width, int height): camera(came
     texture.create(width, height);
 }
 
-std::map<MapCell, sf::Color> getCameraColorMap(){
-    std::map<MapCell, sf::Color> colorMap;
-    colorMap[MapCell::EmptyCell] = sf::Color::Magenta;
-    colorMap[MapCell::Wall1] = sf::Color::Red;
-    colorMap[MapCell::Wall2] = sf::Color::Green;
-    colorMap[MapCell::Wall3] = sf::Color::Blue;
-    colorMap[MapCell::Wall4] = sf::Color::White;
-    colorMap[MapCell::Wall5] = sf::Color::Yellow;
+std::map<MapCell, sf::Texture> getCameraTextureMap(){
+    std::map<MapCell, sf::Texture> colorMap;
+    sf::Texture EmptyCell, RedBrick, Wood, Eagle, Mossy, GreyStone, PurpleStone;
+    if (   !RedBrick.loadFromFile("assets/wallTextures/redbrick.png")
+        || !Wood.loadFromFile("assets/wallTextures/wood.png")
+        || !Eagle.loadFromFile("assets/wallTextures/eagle.png")
+        || !Mossy.loadFromFile("assets/wallTextures/mossy.png")
+        || !GreyStone.loadFromFile("assets/wallTextures/greystone.png")
+        || !PurpleStone.loadFromFile("assets/wallTextures/purplestone.png")
+        )
+        throw std::runtime_error("Failed to load textures");
+
+
+    colorMap[MapCell::EmptyCell] = PurpleStone;
+    colorMap[MapCell::RedBrick] = RedBrick;
+    colorMap[MapCell::Wood] = Wood;
+    colorMap[MapCell::Eagle] = Eagle;
+    colorMap[MapCell::Mossy] = Mossy;
+    colorMap[MapCell::GreyStone] = GreyStone;
+    colorMap[MapCell::PurpleStone] = PurpleStone;
     return colorMap;
 }
 
-sf::Color CameraView::mapColor(sf::Vector2i coords, bool shade){
-    static std::map<MapCell, sf::Color> colorMap = getCameraColorMap();
+sf::Texture* CameraView::mapTexture(sf::Vector2i coords, bool shade){
+    static std::map<MapCell, sf::Texture> textureMap = getCameraTextureMap();
     MapCell cell;
     if(camera->getWorld()->map.isOutOfBounds(coords.x, coords.y))
-        cell = MapCell::Wall1;
+        cell = MapCell::RedBrick;
     else
         cell = camera->getWorld()->map.atCoords(coords.x, coords.y);
-    sf::Color c = colorMap[cell];
-    float multiplier = shade ? 0.5 : 1;
-    return  { (sf::Uint8)c.r*multiplier, (sf::Uint8)c.g*multiplier, (sf::Uint8)c.b*multiplier };
+    return &textureMap[cell];
 }
 
 inline float dist(sf::Vector2f a, sf::Vector2f b){
     return sqrt((a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y));
-}
-
-inline sf::RectangleShape generateRectangle(sf::Vector2f position, sf::Vector2f size, sf::Color color){
-        sf::RectangleShape rectangle;
-        rectangle.setSize(size);
-        rectangle.setFillColor(color);
-        rectangle.setPosition(position);
-        return rectangle;
 }
 
 float Camera::getFOVHeightCorrectionConstant() const{
@@ -133,7 +135,16 @@ sf::Sprite CameraView::getFrame(){
     float rectWidth = width/(float)rays.size();
     for(int i = 0; i < (int)rays.size(); i++){
         float height = this->height/camera->getFOVHeightCorrectionConstant()/camera->getViewPlane().projDist(rayHits[i].pos); 
-        texture.draw(generateRectangle({rectWidth*i, this->height/2 - height/2}, {rectWidth, height}, mapColor(rayHits[i].mapPos, rayHits[i].side)));
+        sf::RectangleShape rectangle;
+        rectangle.setPosition({rectWidth*i, this->height/2 - height/2});
+        rectangle.setSize({rectWidth, height});
+        sf::Texture* rectTexture = mapTexture(rayHits[i].mapPos, rayHits[i].side);
+        rectangle.setTexture(rectTexture);
+        float textureXOffset = rayHits[i].side == 1 ? rayHits[i].pos.x - floor(rayHits[i].pos.x): rayHits[i].pos.y - floor(rayHits[i].pos.y);
+        sf::Vector2u textureSize = rectTexture->getSize();
+        sf::IntRect txRect{(int)(textureSize.x*textureXOffset), 0, 1, (int)textureSize.y};
+        rectangle.setTextureRect(txRect);
+        texture.draw(rectangle);
     }
     
     texture.display();

@@ -62,7 +62,7 @@ class CameraView {
     const Camera* camera;
     sf::RenderTexture texture;
     int width, height;
-    sf::Color mapColor(sf::Vector2i coords, bool shade);
+    sf::Texture* mapTexture(sf::Vector2i coords, bool shade);
     public:
     CameraView(const Camera* camera, int width=500, int height=500);
     sf::Sprite getFrame();
