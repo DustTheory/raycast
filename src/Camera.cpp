@@ -3,6 +3,7 @@
 #include <math.h>
 
 Camera::Camera(World* world, int nLines, int rotation, float FOV): world(world), nLines(nLines), FOV(FOV){
+    FOV = FOV;
     rays.resize(nLines);
     rayHits.resize(nLines);
     setRotation(rotation);
@@ -13,15 +14,16 @@ void Camera::rotateBy(float delta){
 }
 
 void Camera::calcRays(){
-    lookDir = sf::Vector2f(sin(rotation), cos(rotation))*2.f;
+    lookDir = sf::Vector2f(sin(rotation), cos(rotation));
     viewPlaneV  = {sin(rotation+deg90), cos(rotation+deg90)};
-    viewPlane = Plane(viewPlaneV, position+lookDir);
-    float angleStep = FOV/nLines; 
-    float angle = -FOV/2;
+    viewPlane = Plane(viewPlaneV, position);
+    float l = FOVHeightCorrectionConstant = 2*tan(FOV/2);
+    float step = l/nLines;
+    float segmetnOffset = -tan(FOV/2);
     for(int i = 0; i < rays.size(); i++){
-        sf::Vector2f direction = lookDir + tan(angle)*viewPlaneV;
-        rays[i] = Ray(getPosition()+lookDir, direction);
-        angle += angleStep;
+        sf::Vector2f direction = lookDir + segmetnOffset*viewPlaneV;
+        rays[i] = Ray(getPosition(), direction, atan(segmetnOffset));
+        segmetnOffset += step;
     }
 }
 
@@ -32,8 +34,11 @@ void Camera::setRotation(float rotation){
 
 void Camera::setPosition(sf::Vector2f position){
     this->position = position;
-    for(Ray& ray : rays)
-        ray.origin = getPosition();
+    calcRays();
+}
+
+void Camera::moveForward(float moveSpeed){
+    setPosition(getPosition()+lookDir*moveSpeed);
 }
 
 const std::vector<Ray>& Camera::getRays() const{
@@ -115,6 +120,10 @@ inline sf::RectangleShape generateRectangle(sf::Vector2f position, sf::Vector2f 
         return rectangle;
 }
 
+float Camera::getFOVHeightCorrectionConstant() const{
+    return FOVHeightCorrectionConstant;
+}
+
 sf::Sprite CameraView::getFrame(){
     texture.clear(sf::Color::Black);
 
@@ -123,7 +132,7 @@ sf::Sprite CameraView::getFrame(){
     
     float rectWidth = width/(float)rays.size();
     for(int i = 0; i < (int)rays.size(); i++){
-        float height = this->height/camera->getViewPlane().projDist(rayHits[i].pos);
+        float height = this->height/camera->getFOVHeightCorrectionConstant()/camera->getViewPlane().projDist(rayHits[i].pos); 
         texture.draw(generateRectangle({rectWidth*i, this->height/2 - height/2}, {rectWidth, height}, mapColor(rayHits[i].mapPos, rayHits[i].side)));
     }
     
@@ -141,6 +150,7 @@ Plane::Plane(sf::Vector2f direction, sf::Vector2f origin){
     C =  origin.y - A*origin.x;
     projDenominator = sqrt(A*A + B*B);
 }
+
 float Plane::projDist(sf::Vector2f point) const{
     return abs((A*point.x + B*point.y + C)/projDenominator);
 }

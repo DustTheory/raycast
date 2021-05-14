@@ -7,7 +7,7 @@ float euclidianDistNoRoot(sf::Vector2f v1, sf::Vector2f v2){
     return (v1.x-v2.x)*(v1.x-v2.x) + (v1.y-v2.y)*(v1.y-v2.y);
 }
 
-Ray::Ray(sf::Vector2f origin, sf::Vector2f direction): origin(origin), direction(direction){}
+Ray::Ray(sf::Vector2f origin, sf::Vector2f direction, float relativeAngle): origin(origin), direction(direction), relativeAngle(relativeAngle){}
 Ray::Ray(){}
 
 #define INF std::numeric_limits<float>::infinity() 

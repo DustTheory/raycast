@@ -36,7 +36,9 @@ class Camera : public Entity {
     sf::Vector2f lookDir;
     sf::Vector2f viewPlaneV;
     Plane viewPlane;
-    
+
+    float FOVHeightCorrectionConstant;
+
     bool hitWall(sf::Vector2i mapPos);
 
     public:
@@ -45,6 +47,8 @@ class Camera : public Entity {
     void rotateBy(float delta);
     void setRotation(float rotation);
     void setPosition(sf::Vector2f position);
+    void moveForward(float moveSpeed);
+    float getFOVHeightCorrectionConstant() const;
     const std::vector<Ray>& getRays() const;
     const std::vector<RayHit>& getRayHits() const;
     void captureFrame();

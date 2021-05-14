@@ -61,15 +61,16 @@ sf::Sprite Minimap::getFrame(){
     return sf::Sprite(texture.getTexture());
 }
 
+
 void Minimap::drawCamera(Camera* camera){
     float dotRadius = 5;
     const std::vector<Ray>& cameraRays = camera->getRays();
     const std::vector<RayHit>& cameraRayHits = camera->getRayHits();
     sf::VertexArray rays(sf::TrianglesStrip, cameraRays.size()*2);
-    sf::Color raysColor = sf::Color(255, 255, 255, 100);
+    sf::Color raysColor = sf::Color(255, 255, 255, 60);
     for(int i = 0; i < (int)cameraRays.size(); i++){
         rays[i*2].position = cameraRays[i].origin*cellSide;
-        rays[i*2+1].position = cameraRayHits[i].pos*cellSide;
+        rays[i*2+1].position =  cameraRayHits[i].pos*cellSide;
         rays[i*2+1].color = rays[i*2].color = raysColor;
     }
 

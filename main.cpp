@@ -18,18 +18,42 @@ int main(){
 
     sf::VertexArray lines;
     World world("worlds/testWorld.world");
-    Camera camera(&world, 300, 0, degToRad(100));
+    Camera camera(&world, 500, 0, degToRad(90));
     world.addEntity(&camera);
     camera.setPosition({3, 3});
-    camera.setRotation(degToRad(90));
-    Minimap minimap(&world, 100, 100);
+    Minimap minimap(&world, 300, 300);
+    float moveSpeed = 0.3;
+    float rotateSpeed = degToRad(2);
     CameraView cameraView(&camera);
     while (window->isOpen()){
+        sf::Event event;
+        while (window->pollEvent(event))
+        {
+            if (event.type == sf::Event::KeyPressed){
+                char key = event.key.code + 'a';
+
+                if (key == 'w' || key == 'W')
+                    camera.moveForward(moveSpeed);
+                
+                if (key == 'a' || key == 'A')
+                    camera.rotateBy(-rotateSpeed);
+                
+                if (key == 's' || key == 'S')
+                    camera.moveForward(-moveSpeed);
+                
+                if (key == 'd' || key == 'D')
+                    camera.rotateBy(rotateSpeed);
+            }
+
+            if (event.type == sf::Event::Closed)
+                window->close();
+        }
         window->clear(sf::Color::Black);
         camera.captureFrame();
         window->draw(cameraView.getFrame());
-        window->draw(minimap.getFrame());
-        camera.rotateBy(degToRad(-0.1));
+        sf::Sprite mm = minimap.getFrame();
+        mm.setPosition(500, 500);
+        window-> draw(mm);
         window->display();
     }
 }
