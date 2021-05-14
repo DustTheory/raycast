@@ -13,6 +13,7 @@ class Ray {
     public:
     sf::Vector2f origin;
     sf::Vector2f direction;
+    Ray();
     Ray(sf::Vector2f origin, sf::Vector2f direction);
     bool mapStep(sf::Vector2f &position);
     float yOnRay(float x);
