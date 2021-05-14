@@ -7,6 +7,8 @@
 #include "Camera.h"
 #include "World.h"
 #include "Map.h"
+#include "Minimap.h"
+#include "Ray.h"
 
 
 int main(){
@@ -15,18 +17,18 @@ int main(){
     window->setFramerateLimit(60);
 
     sf::VertexArray lines;
-    Map map = Map();
-    World world = World(map);
-    Camera camera = Camera(&world, 90, 300);
-    
-    float rot = 0;
+    World world("worlds/testWorld.world");
+    Camera camera(&world, 300);
+    world.addEntity(&camera);
+    camera.setPosition({3, 3});
+    Minimap minimap(&world, 100, 100);
+    CameraView cameraView(&camera);
     while (window->isOpen()){
         window->clear(sf::Color::Black);
-        std::vector<sf::RectangleShape> v;
-        camera.captureFrame(v);
-        for(sf::RectangleShape &rect : v)
-            window->draw(rect);
-        camera.setRotation(rot+=1);
+        camera.rotateBy(0.2);
+        camera.captureFrame();
+        window->draw(cameraView.getFrame());
+        window->draw(minimap.getFrame());
         window->display();
     }
 }

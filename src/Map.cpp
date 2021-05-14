@@ -30,10 +30,10 @@ std::string Map::toString() const{
 	return res;
 }
 
-int Map::getMapWidth(){
+int Map::getMapWidth() const{
 	return mapWidth;
 }
 
-int Map::getMapHeight(){
+int Map::getMapHeight() const{
 	return mapHeight;
 }

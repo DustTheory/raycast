@@ -20,10 +20,11 @@ class Map {
     public:
     Map();
     Map(std::string mapdata, int mapHeight, int mapWidth);
+    const std::vector<std::vector<MapCell>>& getMap() const;
     bool isOutOfBounds(int i, int j) const;
     MapCell atCoords(int i, int j) const;
     std::string toString() const;
-    int getMapHeight();
-    int getMapWidth();
+    int getMapHeight() const;
+    int getMapWidth() const;
 };
 #endif

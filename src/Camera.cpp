@@ -1,60 +1,50 @@
 #include "Camera.h"
+#include "World.h"
+#include <math.h>
 
-inline float Camera::distToPlane(int mapX, int mapY, int side, sf::Vector2f v, sf::Vector2f u){
-    return sqrt((v.x-mapX)*(v.x-mapX) + (v.y-mapY)*(v.y-mapY));
-    /* int stepX = v.x < 0 ? -1 : 0;
-    int stepY = v.y < 0 ? -1 : 0;
-    if (side == 0)
-        return (mapX - u.x + (1 - stepX) / 2) / v.x;
-    return (mapY - u.x + (1 - stepY) / 2) / v.y; */
-}
+Camera::Camera(World* world, int nLines, int rotation, float FOV): world(world), nLines(nLines), FOV(FOV){
+    sf::Vector2f lookDir = {0, 1};
+    sf::Vector2f vPlane  = {1, 0};
 
-void Camera::captureFrame(std::vector<sf::RectangleShape> &lines)
-{
-    lines.clear();
-    sf::Vector2f lookDir = {cos(rotation), sin(rotation)};
-    sf::Vector2f planeVector = {cos(rotation + deg90), sin(rotation + deg90)};
-    sf::Vector2f u = position + lookDir * (1 / tan(FOV));
-
-    int mapX, mapY, side;
-    float currentOffset = 1;
-
-    for (int i = 0; i < nLines; i++)
-    {
-        sf::Vector2f v = u + planeVector * currentOffset;
-        std::tie(mapX, mapY, side) = fireRay(position, lookDir);
-        float dist = distToPlane(mapX, mapY, side, position, u);
-        printf("%d %d\n", mapX, mapY);
-        sf::Color color;
-        if(world->map.isOutOfBounds(mapX, mapY))
-            color = mapColor(MapCell::Wall1);
-        else
-            color = mapColor(world->map.atCoords(mapX, mapY));
-        lines.push_back(generateRectangle(i, dist, color));
-        currentOffset -= step;
-    }
-}
-
-void Camera::prepareRay(sf::Vector2f position, sf::Vector2f direction, sf::Vector2f &deltaDist, sf::Vector2f &sideDist, sf::Vector2i &mapPos, sf::Vector2i &orientation){
-    mapPos = {(int)position.x, (int)position.y};
+    float angleStep = FOV/nLines; 
+    float angle = -FOV/2;
     
-    orientation = {
-        direction.x < 0 ? -1 : 1,
-        direction.y < 0 ? -1 : 1
-    };
+    rayHits.resize(nLines);
 
-    if(direction.x == 0)
-        deltaDist = {0, 1};
-    else if(direction.y == 0)
-        deltaDist = {1, 0};
-    else
-        deltaDist = { abs(1.0f/direction.x), abs(1.0f/direction.y) };
-    printf("%f %f", deltaDist.x, deltaDist.y);
+    for(int i = 0; i < nLines; i++){
+        sf::Vector2f direction = lookDir + tan(angle)*vPlane;
+        rays.emplace_back(getPosition(), direction);
+        angle += angleStep;
+    }
+    rotateBy(rotation);
+}
 
-    sideDist = {
-        (orientation.x == -1 ? (position.x-mapPos.x) : (1.0f-position.x + mapPos.x))*deltaDist.x,
-        (orientation.y == -1 ? (position.y-mapPos.y) : (1.0f-position.y + mapPos.y))*deltaDist.y
-    };        
+void Camera::rotateBy(float rotation){
+    sf::Transform rotationTransform;
+    rotationTransform.rotate(rotation);
+    this->rotation = degToRad(rotation);
+    for(Ray &r :  rays)
+        r.direction = rotationTransform.transformPoint(r.direction);
+}
+
+void Camera::setPosition(sf::Vector2f position){
+    this->position = position;
+    for(Ray& ray : rays)
+        ray.origin = getPosition();
+}
+
+const std::vector<Ray>& Camera::getRays() const{
+    return rays;
+}
+
+const std::vector<RayHit>& Camera::getRayHits() const{ 
+    return rayHits;
+}
+
+
+void Camera::captureFrame(){
+    for(int i = 0; i < (int)rays.size(); i++)
+        rayHits[i] = getRayMapIntersection(rays.at(i));
 }
 
 bool Camera::hitWall(sf::Vector2i mapPos){
@@ -63,49 +53,41 @@ bool Camera::hitWall(sf::Vector2i mapPos){
     return world->map.atCoords(mapPos.x, mapPos.y) != MapCell::EmptyCell;
 }
 
-std::tuple<int, int, int> Camera::fireRay(sf::Vector2f position, sf::Vector2f direction){
-    sf::Vector2f deltaDist, sideDist;
-    sf::Vector2i mapPos, orientation;
-    prepareRay(position, direction, deltaDist, sideDist, mapPos, orientation);   
-    bool side = 0;
-
-    while(!hitWall(mapPos)){
-        if(sideDist.x < sideDist.y){
-            sideDist.x += deltaDist.x;
-            mapPos.x += orientation.x;
-            side = 0;
-        }else{
-            sideDist.y += deltaDist.y;
-            mapPos.y += orientation.y;
-            side = 1;
-        }
+RayHit Camera::getRayMapIntersection(Ray ray){
+    sf::Vector2i mapPos = {(int)ray.origin.x, (int)ray.origin.y};
+    sf::Vector2f pos = ray.origin;
+    bool side = ray.mapStep(pos);
+    for(int step = 0; step < CAMERA_MAX_RAY_STEPS; step++){
+        if(side == 0 && ray.direction.x < 0)
+            mapPos = { (int)pos.x - 1, (int)ceil(pos.y) - 1 };
+        else if(side == 0 && ray.direction.x >= 0)
+            mapPos = { (int)pos.x, (int)ceil(pos.y) - 1 };
+        else if(side == 1 && ray.direction.y >= 0)
+            mapPos = { (int)floor(pos.x), (int)pos.y };
+        else if(side == 1 && ray.direction.y < 0)
+            mapPos = { (int)floor(pos.x), (int)pos.y - 1};
+        if(hitWall(mapPos))
+            break;
+        side = ray.mapStep(pos);
     }
-    return {mapPos.x, mapPos.y, side};
+    return {pos, mapPos, side};
 }
 
-
-Camera::Camera(const World *world, float FOV, int nLines) : world(world), position({20, 20}), nLines(nLines), rotation(0)
-{
-    this->FOV = degToRad(FOV) / 2;
-    step = 2.0 / nLines;
+const World* Camera::getWorld() const{
+    return world;
 }
 
-void Camera::setRotation(float rotation)
-{
-    this->rotation = degToRad(rotation);
+CameraView::CameraView(const Camera* camera, int width, int height): camera(camera), width(width), height(height){
+    texture.create(width, height);
 }
 
-inline sf::RectangleShape Camera::generateRectangle(int line, int dist, sf::Color color){
-        sf::RectangleShape rectangle;
-        rectangle.setSize(sf::Vector2f(500 / nLines, dist * 100));
-        rectangle.setFillColor(color);
-        rectangle.setPosition(line * 500 / nLines, 20);
-        return rectangle;
-}
-
-sf::Color Camera::mapColor(MapCell cell)
-{
-    switch ((int)cell)
+sf::Color CameraView::mapColor(sf::Vector2i coords){
+    MapCell cell;
+    if(camera->getWorld()->map.isOutOfBounds(coords.x, coords.y))
+        cell = MapCell::Wall1;
+    else
+        cell = camera->getWorld()->map.atCoords(coords.x, coords.y);
+    switch ((int) cell)
     {
     case 1:
         return sf::Color::Red;
@@ -120,3 +102,32 @@ sf::Color Camera::mapColor(MapCell cell)
     }
     return sf::Color::Yellow;
 }
+
+inline float dist(sf::Vector2f a, sf::Vector2f b){
+    return sqrt((a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y));
+}
+
+inline sf::RectangleShape generateRectangle(sf::Vector2f position, sf::Vector2f size, sf::Color color){
+        sf::RectangleShape rectangle;
+        rectangle.setSize(size);
+        rectangle.setFillColor(color);
+        rectangle.setPosition(position);
+        return rectangle;
+}
+
+sf::Sprite CameraView::getFrame(){
+    texture.clear(sf::Color::Black);
+
+    const std::vector<Ray> &rays = camera->getRays();
+    const std::vector<RayHit> &rayHits = camera->getRayHits();
+    
+    float rectWidth = width/(float)rays.size();
+    for(int i = 0; i < (int)rays.size(); i++){
+        float height = 100.0/dist(rays[i].origin, rayHits[i].pos);
+        texture.draw(generateRectangle({rectWidth*i, 200-height}, {rectWidth, height}, mapColor(rayHits[i].mapPos)));
+    }
+    
+    texture.display();
+    return sf::Sprite(texture.getTexture());
+}
+

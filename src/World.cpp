@@ -58,3 +58,11 @@ void World::saveToFile(const std::string filename){
         throw std::runtime_error("Error writing to world file");
         
 }
+
+void World::addEntity(Entity* entity){
+    entities.push_back(entity);
+}
+
+const std::vector<Entity*>& World::getEntities() const{
+    return entities;
+}
