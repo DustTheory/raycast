@@ -138,7 +138,7 @@ sf::Sprite CameraView::getFrame() {
                                                         rayHits[i].mapPos.y);
 
         float x = txRect.left + static_cast<int>(textureXOffset*txRect.width);
-        rectangle.setTextureRect({ x, txRect.top, 1, txRect.height });
+        rectangle.setTextureRect({ (float)x, txRect.top, 1, txRect.height });
         viewTexture.draw(rectangle);
         viewTexture.draw(rectOverlay);
     }

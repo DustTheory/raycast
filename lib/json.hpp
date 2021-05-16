@@ -27,7 +27,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE  OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef LIB_INCLUDE_NLOHMANN_JSON_HPP_
+#ifndef INCLUDE_NLOHMANN_JSON_HPP_
 #define INCLUDE_NLOHMANN_JSON_HPP_
 
 #define NLOHMANN_JSON_VERSION_MAJOR 3
@@ -2302,7 +2302,7 @@ JSON_HEDLEY_DIAGNOSTIC_POP
     inline void to_json(nlohmann::json& nlohmann_json_j, const Type& nlohmann_json_t) { NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, __VA_ARGS__)) } \
     inline void from_json(const nlohmann::json& nlohmann_json_j, Type& nlohmann_json_t) { NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, __VA_ARGS__)) }
 
-#ifndef LIB_JSON_USE_IMPLICIT_CONVERSIONS
+#ifndef JSON_USE_IMPLICIT_CONVERSIONS
     #define JSON_USE_IMPLICIT_CONVERSIONS 1
 #endif
 
@@ -2869,7 +2869,7 @@ using is_detected_convertible =
 }  // namespace nlohmann
 
 // #include <nlohmann/json_fwd.hpp>
-#ifndef LIB_INCLUDE_NLOHMANN_JSON_FWD_HPP_
+#ifndef INCLUDE_NLOHMANN_JSON_FWD_HPP_
 #define INCLUDE_NLOHMANN_JSON_FWD_HPP_
 
 #include <cstdint> // int64_t, uint64_t
@@ -25216,7 +25216,7 @@ struct less<::nlohmann::detail::value_t>
 };
 
 // C++20 prohibit function specialization in the std namespace.
-#ifndef LIB_JSON_HAS_CPP_20
+#ifndef JSON_HAS_CPP_20
 
 /*!
 @brief exchanges the values of two JSON objects

@@ -23,7 +23,7 @@ World::World(std::string filename) {
         throw "Failed reading world file";
 
     ifs >> wolrdJson;
-    map = Map(static_cast<std::vector<std::vector<int>>>(wolrdJson["map"]));
+    map = Map(wolrdJson["map"]);
 
     ifs.close();
 }

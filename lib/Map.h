@@ -38,7 +38,7 @@ class Map {
     std::vector<std::vector<MapCell>> map;
  public:
     Map();
-    explicit Map(std::vector<std::vector<int>> mapData);
+    Map(std::vector<std::vector<int>> mapData);
     const std::vector<std::vector<MapCell>>& getMap() const;
     bool isOutOfBounds(int i, int j) const;
     MapCell atCoords(int i, int j) const;

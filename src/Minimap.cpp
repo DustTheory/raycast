@@ -22,8 +22,8 @@ std::map<int, sf::Color> generateMapCellColorMap() {
     for (auto &frameObj : MapCell::mapTextureJson["frames"]) {
         auto &frame = frameObj["frame"];
         mapCellColorMap[i++] = image.getPixel(
-            static_cast<int>(frame["x"])+static_cast<int>(frame["w"]/3),
-            static_cast<int>(frame["y"])+static_cast<int>(frame["h"]/3));
+            static_cast<int>(frame["x"])+static_cast<int>(frame["w"])/3,
+            static_cast<int>(frame["y"])+static_cast<int>(frame["h"])/3);
     }
     return mapCellColorMap;
 }
