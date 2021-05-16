@@ -1,22 +1,25 @@
-#include <SFML/Graphics.hpp>
-#include <vector>
-
-#include "View.h"
+/*
+ *   Copyright (c) 2021 ishakd00
+ *   All rights reserved.
+ *   Cpplint made me put this supid copyright header, I swear :'(
+ */
 #include "World.h"
 #include "Camera.h"
+#include "View.h"
 
-#ifndef MINIMAP_H
-#define MINIMAP_H
+#ifndef LIB_MINIMAP_H_
+#define LIB_MINIMAP_H_
 
+#include <SFML/Graphics.hpp>
 
 class Minimap : public View {
     const World* world;
-    float cellSide;  
+    float cellSide;
     sf::Color mapColor(MapCell cell);
     void drawCamera(Camera* camera);
-    public:
+ public:
     Minimap(const World* world, float width, float height);
     sf::Sprite getFrame();
 };
 
-#endif
+#endif  // LIB_MINIMAP_H_

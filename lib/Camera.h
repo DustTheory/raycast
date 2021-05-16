@@ -1,14 +1,20 @@
-#include <SFML/Graphics.hpp>
+/*
+ *   Copyright (c) 2021 ishakd00
+ *   All rights reserved.
+ *   Cpplint made me put this supid copyright header, I swear :'(
+ */
 #include <vector>
-#include <math.h>
+#include <cmath>
 
 #include "View.h"
 #include "Entity.h"
 #include "Ray.h"
 #include "World.h"
 
-#ifndef CAMERA_H
-#define CAMERA_H
+#ifndef LIB_CAMERA_H_
+#define LIB_CAMERA_H_
+
+#include <SFML/Graphics.hpp>
 
 #define PI 3.14159265358979323846f
 #define deg90 PI/2
@@ -30,8 +36,8 @@ struct Plane {
 class Camera : public Entity {
     World* world;
     int nLines;
-    float rotation; // radians
-    float FOV;      // radians
+    float rotation;  // radians
+    float FOV;       // radians
     std::vector<Ray> rays;
     std::vector<RayMapHit> rayHits;
     sf::Vector2f lookDir;
@@ -42,8 +48,8 @@ class Camera : public Entity {
 
     bool hitWall(sf::Vector2i mapPos);
 
-    public:
-    Camera(World* world, int nLines=300, int rotation=0, float FOV = PI/2);
+ public:
+    explicit Camera(World* world, int nLines = 1000, int rotation = 0, float FOV = PI/2);
     void calcRays();
     void setRotation(float rotation);
     void setPosition(sf::Vector2f position);
@@ -60,11 +66,11 @@ class Camera : public Entity {
 
 class CameraView : public View {
     const Camera* camera;
-    sf::Texture* mapTexture(sf::Vector2i coords, bool shade);
-    public:
+    const sf::IntRect& getTxRectForCellAt(int i, int j);
+ public:
     CameraView(const Camera* camera, float width, float height);
     sf::Sprite getFrame();
 };
 
 
-#endif
+#endif  // LIB_CAMERA_H_

@@ -1,35 +1,31 @@
-#include <SFML/Graphics.hpp>
-#include <math.h>
+/*
+ *   Copyright (c) 2021 ishakd00
+ *   All rights reserved.
+ *   Cpplint made me put this supid copyright header, I swear :'(
+ */
 #include <vector>
-#include <unistd.h>
-#include <fstream>
+#include <SFML/Graphics.hpp>
 
-#include "Camera.h"
 #include "World.h"
-#include "Map.h"
-#include "Minimap.h"
-#include "Ray.h"
-#include "HUD.h"
 #include "Player.h"
 
-#include "json.hpp"
-
-using json = nlohmann::json;
-
-int main(){
-
-    sf::RenderWindow *window = new sf::RenderWindow(sf::VideoMode(800, 600), "raycasting_fps");
+int main() {
+    static const std::vector<sf::VideoMode> &videoModes =
+                                            sf::VideoMode::getFullscreenModes();
+    sf::RenderWindow *window = new sf::RenderWindow(
+        videoModes[0],
+        "raycasting_fps",
+        sf::Style::Fullscreen);
     window->setVerticalSyncEnabled(true);
     window->setFramerateLimit(60);
 
     sf::VertexArray lines;
     World world("worlds/testWorld.json");
-    Player player(&world, {3, 3}, 0);
+    Player player(window, &world, {3, 3}, 0);
 
-    while (window->isOpen()){
+    while (window->isOpen()) {
         sf::Event event;
-        while (window->pollEvent(event))
-        {
+        while (window->pollEvent(event)) {
             player.handleEvent(event);
             if (event.type == sf::Event::Closed)
                 window->close();

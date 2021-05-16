@@ -1,28 +1,33 @@
+/*
+ *   Copyright (c) 2021 ishakd00
+ *   All rights reserved.
+ *   Cpplint made me put this supid copyright header, I swear :'(
+ */
 #include "View.h"
 
-View::View(float width, float height): width(width), height(height){
+View::View(float width, float height): width(width), height(height) {
     viewTexture.create(width, height);
 }
-float View::getHeight(){
+float View::getHeight() {
     return height;
 }
 
-float View::getWidth(){
+float View::getWidth() {
     return width;
 }
 
-void View::setHeight(float height){
+void View::setHeight(float height) {
     this->height = height;
 }
 
-void View::setWidth(float width){
+void View::setWidth(float width) {
     this->width = width;
 }
 
-sf::Sprite View::getFrame(){
+sf::Sprite View::getFrame() {
     viewTexture.clear(sf::Color::Black);
     viewTexture.display();
     return sf::Sprite(viewTexture.getTexture());
 }
 
-View::~View(){}
+View::~View() {}

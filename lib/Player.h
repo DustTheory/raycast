@@ -1,8 +1,12 @@
+/*
+ *   Copyright (c) 2021 ishakd00
+ *   All rights reserved.
+ *   Cpplint made me put this supid copyright header, I swear :'(
+ */
+#ifndef LIB_PLAYER_H_
+#define LIB_PLAYER_H_
 
-
-#ifndef PLAYERCONTROLER_H
-#define PLAYERCONTROLER_H
-
+#include <SFML/Graphics.hpp>
 #include "World.h"
 #include "Camera.h"
 #include "HUD.h"
@@ -10,7 +14,7 @@
 #include "View.h"
 
 class PlayerView : public View {
-    public:
+ public:
     Camera playerCamera;
     CameraView cameraView;
     HUD hud;
@@ -21,18 +25,19 @@ class PlayerView : public View {
     sf::Sprite getFrame();
 };
 
-class Player: Entity{   
-    public:
+class Player: Entity {
+ public:
+    sf::Window* window;
     PlayerView playerView;
 
-    Player(World* world, sf::Vector2f position, float rotation);
+    Player(sf::Window* window, World* world, sf::Vector2f position, float rotation);
     void setPosition(sf::Vector2f position);
     void setRotation(float rotation);
     void rotateBy(float delta);
     void moveForward(float moveSpeed);
     void fire();
     void reload();
-    void handleEvent(sf::Event &event);
+    void handleEvent(const sf::Event &event);
 };
 
-#endif
+#endif  // LIB_PLAYER_H_

@@ -1,12 +1,19 @@
-#include <SFML/Graphics.hpp>
-#include <json.hpp>
+/*
+ *   Copyright (c) 2021 ishakd00
+ *   All rights reserved.
+ *   Cpplint made me put this supid copyright header, I swear :'(
+ */
+#ifndef LIB_SPRITEANIMATIONCONTROLLER_H_
+#define LIB_SPRITEANIMATIONCONTROLLER_H_
+
 #include <vector>
 #include <map>
 #include <fstream>
-#include <iostream>
+#include <string>
 
-#ifndef SPRITE_ANIMATION_H
-#define SPRITE_ANIMATION_H
+#include <SFML/Graphics.hpp>
+#include <json.hpp>
+
 
 using json = nlohmann::json;
 
@@ -23,18 +30,17 @@ class SpriteAnimationController {
     sf::Texture texture;
     std::map<std::string, SpriteAnimation> animations;
     std::map<std::string, SpriteAnimation>::iterator playingAnimation;
-    json loadTextureFromFile(const std::string &textureImgPath, const std::string &textureJsonPath);
     sf::Clock clock;
-    
-    bool playingOnce=false;
+
+    bool playingOnce = false;
     std::string fallback;
 
-    public:
+ public:
     SpriteAnimationController();
     SpriteAnimationController(sf::Sprite &sprite, std::string textureImgPath, std::string textureJsonPath);
     void setPlayingAnimation(const std::string &name);
     void playAnimationOnce(const std::string &name, const std::string &fallback);
-    void updateAnimationframe();    
+    void updateAnimationframe();
 };
 
-#endif
+#endif  // LIB_SPRITEANIMATIONCONTROLLER_H_

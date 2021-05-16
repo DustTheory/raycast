@@ -1,7 +1,14 @@
-#include <SFML/Graphics.hpp>
+/*
+ *   Copyright (c) 2021 ishakd00
+ *   All rights reserved.
+ *   Cpplint made me put this supid copyright header, I swear :'(
+ */
 
-#ifndef RAY_H
-#define RAY_H
+#ifndef LIB_RAY_H_
+#define LIB_RAY_H_
+
+#include <Entity.h>
+#include <SFML/Graphics.hpp>
 
 struct RayMapHit {
     sf::Vector2f pos;
@@ -15,15 +22,14 @@ struct RayEntityHit {
 };
 
 class Ray {
-    public:
+ public:
     sf::Vector2f origin;
     sf::Vector2f direction;
-    float relativeAngle; // Only used in camera to store relative angle to look direction, useful for fisheye correction
     Ray();
-    Ray(sf::Vector2f origin, sf::Vector2f direction, float relativeAngle=0);
+    Ray(sf::Vector2f origin, sf::Vector2f direction);
     bool mapStep(sf::Vector2f &position);
     float yOnRay(float x);
     float xOnRay(float y);
 };
 
-#endif
+#endif  // LIB_RAY_H_
