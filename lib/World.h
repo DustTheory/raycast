@@ -1,5 +1,6 @@
 #include "Map.h"
 #include "Entity.h"
+#include "Player.h"
 #include <string>
 #include <vector>
 
@@ -14,7 +15,6 @@ class World {
     World(Map map);
     World(std::string filename);
     void saveToFile(const std::string filename);
-    int selectMapDataCallback(void *NotUsed, int argc, char **argv, char **szColName);
     void addEntity(Entity* entity);
     const std::vector<Entity*>& getEntities() const;
 };

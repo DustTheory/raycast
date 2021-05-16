@@ -2,6 +2,7 @@
 #include <vector>
 #include <math.h>
 
+#include "View.h"
 #include "Entity.h"
 #include "Ray.h"
 #include "World.h"
@@ -32,7 +33,7 @@ class Camera : public Entity {
     float rotation; // radians
     float FOV;      // radians
     std::vector<Ray> rays;
-    std::vector<RayHit> rayHits;
+    std::vector<RayMapHit> rayHits;
     sf::Vector2f lookDir;
     sf::Vector2f viewPlaneV;
     Plane viewPlane;
@@ -44,27 +45,24 @@ class Camera : public Entity {
     public:
     Camera(World* world, int nLines=300, int rotation=0, float FOV = PI/2);
     void calcRays();
-    void rotateBy(float delta);
     void setRotation(float rotation);
     void setPosition(sf::Vector2f position);
-    void moveForward(float moveSpeed);
     float getFOVHeightCorrectionConstant() const;
     const std::vector<Ray>& getRays() const;
-    const std::vector<RayHit>& getRayHits() const;
+    const std::vector<RayMapHit>& getRayHits() const;
     void captureFrame();
-    RayHit getRayMapIntersection(Ray ray);
+    RayMapHit getRayMapIntersection(Ray ray);
     const World* getWorld() const;
     const Plane& getViewPlane() const;
+    const sf::Vector2f& getLookDirection() const;
 };
 
 
-class CameraView {
+class CameraView : public View {
     const Camera* camera;
-    sf::RenderTexture texture;
-    int width, height;
     sf::Texture* mapTexture(sf::Vector2i coords, bool shade);
     public:
-    CameraView(const Camera* camera, int width=500, int height=500);
+    CameraView(const Camera* camera, float width, float height);
     sf::Sprite getFrame();
 };
 

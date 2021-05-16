@@ -3,19 +3,19 @@
 #include "Camera.h"
 #include "Minimap.h"
 
-Minimap::Minimap(const World* world, int width, int height): world(world), width(width), height(height){
+Minimap::Minimap(const World* world, float width, float height):  View(width, height), world(world){
     cellSide = std::min(width, height)/std::max(world->map.getMapHeight(), world->map.getMapWidth());
-    texture.create(width, height);
 }
 
 std::map<MapCell, sf::Color> getMinimapColorMap(){
     std::map<MapCell, sf::Color> colorMap;
     colorMap[MapCell::EmptyCell] = sf::Color::Black;
-    colorMap[MapCell::Wall1] = sf::Color::Red;
-    colorMap[MapCell::Wall2] = sf::Color::Green;
-    colorMap[MapCell::Wall3] = sf::Color::Blue;
-    colorMap[MapCell::Wall4] = sf::Color::White;
-    colorMap[MapCell::Wall5] = sf::Color::Yellow;
+    colorMap[MapCell::RedBrick] = sf::Color::Red;
+    colorMap[MapCell::Wood] = sf::Color::Green;
+    colorMap[MapCell::Eagle] = sf::Color::Blue;
+    colorMap[MapCell::Mossy] = sf::Color::White;
+    colorMap[MapCell::GreyStone] = sf::Color::Yellow;
+    colorMap[MapCell::PurpleStone] = sf::Color::Cyan;
     return colorMap;
 }
 
@@ -35,7 +35,7 @@ sf::CircleShape entityCircle(sf::Vector2f position, float radius=5, sf::Color co
 }
 
 sf::Sprite Minimap::getFrame(){
-    texture.clear(sf::Color::Black);
+    viewTexture.clear(sf::Color::Black);
     for(int i = 0; i < world->map.getMapHeight(); i++){
         for(int j = 0; j < world->map.getMapWidth(); j++){
             sf::RectangleShape rectangle;
@@ -44,7 +44,7 @@ sf::Sprite Minimap::getFrame(){
             rectangle.setOutlineColor(sf::Color::Black); */
             rectangle.setFillColor(mapColor(world->map.atCoords(i, j)));
             rectangle.setPosition(i*cellSide, j*cellSide);
-            texture.draw(rectangle);
+            viewTexture.draw(rectangle);
         }
     }
 
@@ -53,19 +53,19 @@ sf::Sprite Minimap::getFrame(){
         if(cameraEntity){
             drawCamera(cameraEntity);
         }else{
-            texture.draw(entityCircle(entity->getPosition()*cellSide));
+            viewTexture.draw(entityCircle(entity->getPosition()*cellSide));
         }
     }
 
-    texture.display();
-    return sf::Sprite(texture.getTexture());
+    viewTexture.display();
+    return sf::Sprite(viewTexture.getTexture());
 }
 
 
 void Minimap::drawCamera(Camera* camera){
     float dotRadius = 5;
     const std::vector<Ray>& cameraRays = camera->getRays();
-    const std::vector<RayHit>& cameraRayHits = camera->getRayHits();
+    const std::vector<RayMapHit>& cameraRayHits = camera->getRayHits();
     sf::VertexArray rays(sf::TrianglesStrip, cameraRays.size()*2);
     sf::Color raysColor = sf::Color(255, 255, 255, 60);
     for(int i = 0; i < (int)cameraRays.size(); i++){
@@ -78,7 +78,8 @@ void Minimap::drawCamera(Camera* camera){
     const Plane& viewPlane = camera->getViewPlane();
     viewPlaneLine[0].position = sf::Vector2f(0, viewPlane.f(0))*cellSide;
     viewPlaneLine[1].position = sf::Vector2f((float)width,viewPlane.f((float)width))*cellSide;
-    texture.draw(viewPlaneLine);
-    texture.draw(rays);
-    texture.draw(entityCircle(camera->getPosition()*cellSide, dotRadius));
+    viewTexture.draw(viewPlaneLine);
+    viewTexture.draw(rays);
+    viewTexture.draw(entityCircle(camera->getPosition()*cellSide, dotRadius));
 }
+

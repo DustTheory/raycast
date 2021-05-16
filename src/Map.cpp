@@ -3,14 +3,17 @@
 
 Map::Map(): mapHeight(0), mapWidth(0){};
 
-Map::Map(std::string mapdata, int mapHeight, int mapWidth): mapHeight(mapHeight), mapWidth(mapWidth) {
-	if((int)mapdata.length() != mapHeight*mapWidth)
-		throw std::out_of_range("Map dimensions incompatible with map data");
-	this->map = std::vector<std::vector<MapCell>>(mapHeight, std::vector<MapCell>(mapWidth, MapCell::EmptyCell));
-	for(int i = 0; i < mapHeight; i++)
+Map::Map(std::vector<std::vector<int>> mapData){
+	mapHeight = mapData.size();
+	mapWidth = mapHeight > 0 ? mapData[0].size() : 0;
+	map.clear();
+	for(int i = 0; i < mapHeight; i++){
+		map.push_back({});
 		for(int j = 0; j < mapWidth; j++)
-			this->map.at(i).at(j) = (MapCell)(mapdata[i*mapWidth+j]-'0');
+			map[i].push_back((MapCell)mapData.at(i).at(j));
+	}
 }
+
 
 
 bool Map::isOutOfBounds(int i, int j) const{
@@ -19,6 +22,10 @@ bool Map::isOutOfBounds(int i, int j) const{
 
 MapCell Map::atCoords(int i, int j) const{
 	return map.at(i).at(j);
+}
+
+ const std::vector<std::vector<MapCell>>& Map::getMap() const{
+	return map;
 }
 
 std::string Map::toString() const{

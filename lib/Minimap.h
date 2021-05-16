@@ -1,5 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
+
+#include "View.h"
 #include "World.h"
 #include "Camera.h"
 
@@ -7,15 +9,13 @@
 #define MINIMAP_H
 
 
-class Minimap {
+class Minimap : public View {
     const World* world;
-    sf::RenderTexture texture;
-    int width, height;
     float cellSide;  
     sf::Color mapColor(MapCell cell);
     void drawCamera(Camera* camera);
     public:
-    Minimap(const World* world, int width=500, int height=500);
+    Minimap(const World* world, float width, float height);
     sf::Sprite getFrame();
 };
 

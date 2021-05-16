@@ -7,3 +7,6 @@ sf::Vector2f Entity::getPosition(){
 void Entity::setPosition(sf::Vector2f position){
     this->position = position;
 }
+void Entity::setRotation(float rotation){
+    this->rotation = rotation;
+}

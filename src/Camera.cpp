@@ -9,10 +9,6 @@ Camera::Camera(World* world, int nLines, int rotation, float FOV): world(world),
     setRotation(rotation);
 }
 
-void Camera::rotateBy(float delta){
-    setRotation(rotation+delta);
-}
-
 void Camera::calcRays(){
     lookDir = sf::Vector2f(sin(rotation), cos(rotation));
     viewPlaneV  = {sin(rotation+deg90), cos(rotation+deg90)};
@@ -37,15 +33,15 @@ void Camera::setPosition(sf::Vector2f position){
     calcRays();
 }
 
-void Camera::moveForward(float moveSpeed){
-    setPosition(getPosition()+lookDir*moveSpeed);
+const sf::Vector2f& Camera::getLookDirection() const{
+    return lookDir;
 }
 
 const std::vector<Ray>& Camera::getRays() const{
     return rays;
 }
 
-const std::vector<RayHit>& Camera::getRayHits() const{ 
+const std::vector<RayMapHit>& Camera::getRayHits() const{ 
     return rayHits;
 }
 
@@ -61,7 +57,7 @@ bool Camera::hitWall(sf::Vector2i mapPos){
     return world->map.atCoords(mapPos.x, mapPos.y) != MapCell::EmptyCell;
 }
 
-RayHit Camera::getRayMapIntersection(Ray ray){
+RayMapHit Camera::getRayMapIntersection(Ray ray){
     sf::Vector2i mapPos = {(int)ray.origin.x, (int)ray.origin.y};
     sf::Vector2f pos = ray.origin;
     bool side = ray.mapStep(pos);
@@ -81,8 +77,8 @@ const World* Camera::getWorld() const{
     return world;
 }
 
-CameraView::CameraView(const Camera* camera, int width, int height): camera(camera), width(width), height(height){
-    texture.create(width, height);
+
+CameraView::CameraView(const Camera* camera, float width, float height): View(width, height), camera(camera){
 }
 
 std::map<MapCell, sf::Texture> getCameraTextureMap(){
@@ -127,10 +123,10 @@ float Camera::getFOVHeightCorrectionConstant() const{
 }
 
 sf::Sprite CameraView::getFrame(){
-    texture.clear(sf::Color::Black);
+    viewTexture.clear(sf::Color::Black);
 
     const std::vector<Ray> &rays = camera->getRays();
-    const std::vector<RayHit> &rayHits = camera->getRayHits();
+    const std::vector<RayMapHit> &rayHits = camera->getRayHits();
     
     float rectWidth = width/(float)rays.size();
     for(int i = 0; i < (int)rays.size(); i++){
@@ -144,11 +140,11 @@ sf::Sprite CameraView::getFrame(){
         sf::Vector2u textureSize = rectTexture->getSize();
         sf::IntRect txRect{(int)(textureSize.x*textureXOffset), 0, 1, (int)textureSize.y};
         rectangle.setTextureRect(txRect);
-        texture.draw(rectangle);
+        viewTexture.draw(rectangle);
     }
     
-    texture.display();
-    return sf::Sprite(texture.getTexture());
+    viewTexture.display();
+    return sf::Sprite(viewTexture.getTexture());
 }
 
 const Plane& Camera::getViewPlane() const {
